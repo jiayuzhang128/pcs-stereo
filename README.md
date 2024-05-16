@@ -10,6 +10,6 @@ Our method outperforms the existing state-of-the-art methods, quantitative and q
 
 ![quantitative](https://github.com/jiayuzhang128/pcs-stereo/blob/master/imgs/quantitative_results.png)
 
-![quantitative](https://github.com/jiayuzhang128/pcs-stereo/blob/master/imgs/quantitative_results.png)
+![quantitative](https://github.com/jiayuzhang128/pcs-stereo/blob/master/imgs/qualitative_results.png)
 
 The pretrained models are coming soon!
