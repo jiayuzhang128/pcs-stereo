@@ -12,4 +12,6 @@ Our method outperforms the existing state-of-the-art methods, quantitative and q
 
 ![quantitative](https://github.com/jiayuzhang128/pcs-stereo/blob/master/imgs/qualitative_results.png)
 
-The pretrained models are coming soon!
+Download pre-trained weights from this [link](https://drive.google.com/drive/folders/1_iGUJqVaIl5yZdRfXC3cZCBxiqDFGzig?usp=drive_link)
+
+The evaluation scripts are coming soon!
