@@ -13,7 +13,7 @@ from collections import OrderedDict
 root = sys.path[0].split('/')[0]
 sys.path.append(root)
 
-from utils.ops import *
+from utils.utils import *
 
 def pil_loader(path):
     """使用PIL读取文件"""
@@ -46,15 +46,13 @@ class PittburghStereoDataset(data.Dataset):
 
         self.records = OrderedDict()
         self.records = []
-        # 读取list中的内容：collection, imgID, RGBExposureTime, NIRExposureTime, RedGain, BlueGain
+        # read lists：collection, imgID, RGBExposureTime, NIRExposureTime, RedGain, BlueGain
         self.count = 0
         for split in splits.split(','):
             f = open(Path(list_path) / (split + '.txt'), 'r')
             lines = f.readlines()
             f.close()
             for i, line in enumerate(lines):
-                if i > 6:
-                  break
                 items = line.split()
                 collection = items[0]
                 img_id = items[1]
@@ -86,7 +84,7 @@ class PittburghStereoDataset(data.Dataset):
                 transforms.ToTensor(),
                 transforms.Normalize(std=std, mean =mean)])
 
-        # 设置数据增强参数
+        # data augmentation
         try:
             self.brightness = (0.8, 1.2)
             self.contrast = (0.8, 1.2)
@@ -109,8 +107,8 @@ class PittburghStereoDataset(data.Dataset):
         return self.num_records
 
     def __getitem__(self, index):
-        """以字典形式返回一个训练数据
-            value: torch张量
+        """return data as a dict
+            value: torch tensor
             key: 
                 "rgb"  for rgb images
                 "rgb_aug" for augmented rgb images
@@ -123,7 +121,6 @@ class PittburghStereoDataset(data.Dataset):
         inputs = {}
         # print("index: ", str(index))
         
-        # 随机增强与翻转
         do_color_aug = self.is_train and random.random() > 0.5
         do_flip = self.is_train and random.random() > 0.5
         
@@ -138,7 +135,7 @@ class PittburghStereoDataset(data.Dataset):
         inputs["rgb"] = self.get_rgb(collection, img_id, do_flip)
         inputs["nir"] = self.get_nir(collection, img_id, do_flip)
 
-        inputs["semi_proxy_label"] = self.get_proxy_label(collection, img_id, 'semi')
+        # inputs["semi_proxy_label"] = self.get_proxy_label(collection, img_id, 'semi')
         inputs["dense_proxy_label"] = self.get_proxy_label(collection, img_id, 'dense')
         inputs["mono_proxy_label"] = self.get_proxy_label(collection, img_id, 'mono')
 
@@ -149,16 +146,15 @@ class PittburghStereoDataset(data.Dataset):
                 self.saturation,
                 self.hue)
         else:
-            # 啥也不干
             color_aug = (lambda x:x)
         self.preprocess(inputs, color_aug)
         
         return inputs
 
     def preprocess(self, inputs, color_aug):
-        """数据增强，对所有输入进行同样的数据增强
-            inputs: 输入
-            color_aug: 预先定义好的颜色增强对象
+        """data augmentation
+            inputs: input data
+            color_aug: augmentation settings
         """
         # 增强
         for k in list(inputs):
@@ -203,7 +199,7 @@ class PittburghStereoDataset(data.Dataset):
         return nir
 
     def get_proxy_label(self, collection, img_id, proxy='semi'):
-        """获取代理标签, 及其mask, 即disp为0的mask
+        """get proxy labels and vaild masks, 
 
         Args:
             collection (str): dir name
@@ -214,7 +210,7 @@ class PittburghStereoDataset(data.Dataset):
         return proxy_label
         
     def filename(self, collection, img_id, suffix, camera, ftype, proxy=None):
-        """拼接完整文件路径"""
+        """Get full file path"""
         assert camera in ['RGB', 'NIR', '']
         assert ftype in ['png', 'npz', 'npy', 'pfm']
         if proxy is None:
